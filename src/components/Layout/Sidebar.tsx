@@ -17,9 +17,12 @@ const navigation: Record<string, NavItem[]> = {
     { name: 'Knowledge base', href: '/knowledge', icon: '📚' },
   ],
   CRM: [
-    { name: 'Contacts', href: '/contacts', icon: '👤' },
-    { name: 'Pipeline', href: '/pipeline', icon: '📊' },
-    { name: 'Playbook', href: '/playbook', icon: '🧠' },
+    { name: 'Dashboard', href: '/crm', icon: '📊' },
+    { name: 'Leads', href: '/crm/leads', icon: '🎯' },
+    { name: 'Opportunities', href: '/crm/opportunities', icon: '💰' },
+    { name: 'Contacts', href: '/crm/contacts', icon: '👤' },
+    { name: 'Customers', href: '/crm/customers', icon: '👥' },
+    { name: 'Settings', href: '/crm/settings', icon: '⚙️', ownerOnly: true },
   ],
   Work: [
     { name: 'Projects', href: '/projects', icon: '🎬' },
