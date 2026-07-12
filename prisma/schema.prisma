@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// The "Tenant" concept - allows multiple studios on one app
+model Company {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique // Used in /s/:slug
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id])
+  Users     User[]
+  Contacts  Contact[]
+  Deals     Deal[]
+  Projects  Project[]
+  GearItems GearItem[]
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      Role     @default(MEMBER)
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  tasks     Task[]
+  createdAt DateTime @default(now())
+
+  enum Role {
+    OWNER
+    SALES
+    PRODUCER
+    CREW
+    MARKETING
+    FINANCE
+    MEMBER
+  }
+}
+
+// "One person record can wear many hats"
+model Contact {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  hats      ContactHat[] // Array of roles
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  deals     Deal[]
+  createdAt DateTime @default(now())
+}
+
+enum ContactHat {
+  LEAD
+  CLIENT
+  CREW
+  VENDOR
+  TALENT
+}
+
+// "Deal - A potential sale moving through Pipeline stages"
+model Deal {
+  id         String   @id @default(cuid())
+  title      String
+  value      Float    @default(0)
+  stage      PipelineStage @default(INQUIRY)
+  contactId  String
+  contact    Contact  @relation(fields: [contactId], references: [id])
+  companyId  String
+  company    Company  @relation(fields: [companyId], references: [id])
+  project    Project?
+  createdAt  DateTime @default(now())
+}
+
+enum PipelineStage {
+  INQUIRY
+  QUALIFIED
+  PROPOSAL
+  NEGOTIATION
+  WON
+  LOST
+}
+
+// "Project - Active work"
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  status      ProjectStatus @default(PLANNING)
+  dealId      String?
+  deal        Deal?    @relation(fields: [dealId], references: [id])
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  tasks       Task[]
+  crew        ProjectCrew[]
+  createdAt   DateTime @default(now())
+}
+
+enum ProjectStatus {
+  PLANNING
+  PRODUCTION
+  POST_PRODUCTION
+  COMPLETED
+  ARCHIVED
+}
+
+// Junction table for Project-Crew relationships
+model ProjectCrew {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  contactId String
+  contact   Contact  @relation(fields: [contactId], references: [id])
+  role      String?  // e.g., "Editor", "Shooter", "Director"
+  
+  @@unique([projectId, contactId])
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  priority    TaskPriority @default(MEDIUM)
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id])
+  assigneeId  String?
+  assignee    User?    @relation(fields: [assigneeId], references: [id])
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model GearItem {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  status      GearStatus @available
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+enum GearStatus {
+  AVAILABLE
+  CHECKED_OUT
+  MAINTENANCE
+  RETIRED
+}
