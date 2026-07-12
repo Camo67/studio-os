@@ -29,6 +29,13 @@ const navigation: Record<string, NavItem[]> = {
     { name: 'Gear cage', href: '/gear', icon: '📦' },
     { name: 'Studio Clock', href: '/clock', icon: '⏱️' },
   ],
+  Growth: [
+    { name: 'Overview', href: '/growth', icon: '📈' },
+    { name: 'Broadcast', href: '/growth/broadcast', icon: '📡' },
+    { name: 'Connectors', href: '/growth/connectors', icon: '🔗' },
+    { name: 'Media Library', href: '/growth/media', icon: '🖼️' },
+    { name: 'Analytics', href: '/growth/analytics', icon: '📊' },
+  ],
   Commerce: [
     { name: 'Store', href: '/store', icon: '🛍️' },
   ],
